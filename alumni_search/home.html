@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Alumni Home</title>
+  
+</head>
+<body>
+
+  <h2>Welcome Alumni</h2>
+  <p>Enter your registered email to continue</p>
+
+  <input type="email" id="email" placeholder="Enter your email">
+  <button onclick="checkUser()">Continue</button>
+
+  <div id="actionButtons" class="hidden">
+    <div class="btn-row">
+      <button onclick="showUpdateForm()">Update Info</button>
+      <button onclick="goToNearby()">Find Nearby Alumni</button>
+    </div>
+  </div>
+
+  <div id="updateSection" class="hidden">
+    <h3>Update Your Info</h3>
+    <input type="text" id="name" placeholder="Update your name">
+    <input type="text" id="networks" placeholder="Comma-separated networks">
+    <button onclick="updateInfo()">Submit Update</button>
+  </div>
+
+  <p id="status"></p>
+
+  <script>
+    let userEmail = "";
+
+    function checkUser() {
+      const email = document.getElementById('email').value.trim();
+      const status = document.getElementById('status');
+      userEmail = email;
+
+      if (!email) {
+        status.textContent = "Please enter your email.";
+        return;
+      }
+
+      fetch('http://localhost:8000/update_user.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "exists") {
+          status.textContent = data.message;
+          document.getElementById('actionButtons').classList.remove('hidden');
+          localStorage.setItem("user_email", email);
+          updateLocationSilently(email); // auto location update
+        } else if (data.status === "not_found") {
+          window.location.href = "register.html";
+        } else {
+          status.textContent = "" + data.message;
+        }
+      })
+      .catch(err => {
+        status.textContent = " Error: " + err.message;
+      });
+    }
+
+    function updateLocationSilently(email) {
+      if (!navigator.geolocation) return;
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        fetch('http://localhost:8000/update_user.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude
+          })
+        });
+      });
+    }
+
+    function showUpdateForm() {
+      document.getElementById('updateSection').classList.remove('hidden');
+    }
+
+    function goToNearby() {
+      window.location.href = "nearby.html";
+    }
+
+    function updateInfo() {
+      const name = document.getElementById('name').value.trim();
+      const networks = document.getElementById('networks').value.trim().split(',').map(n => n.trim());
+
+      if (!navigator.geolocation) return;
+
+      navigator.geolocation.getCurrentPosition(pos => {
+        fetch('http://localhost:8000/update_user.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: name,
+            email: userEmail,
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            network_ids: networks
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('status').textContent = data.message;
+        })
+        .catch(err => {
+          document.getElementById('status').textContent = " " + err.message;
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>

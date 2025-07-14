@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nearby Alumni</title>
+  
+</head>
+<body>
+
+  <div class="container">
+    <h2>Nearby Alumni</h2>
+
+    <label for="radius">Search Radius (km):</label>
+    <input type="number" id="radius" value="10" min="1">
+
+    <button onclick="fetchAlumni()">Find Nearby Alumni</button>
+
+    <p id="status"></p>
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function fetchAlumni() {
+      const email = localStorage.getItem('user_email');
+      const radius = document.getElementById('radius').value;
+      const statusEl = document.getElementById('status');
+      const resultsDiv = document.getElementById('results');
+
+      statusEl.textContent = "";
+      resultsDiv.innerHTML = "";
+
+      if (!email) {
+        statusEl.textContent = "No email found. Please go to the home page first.";
+        return;
+      }
+
+      fetch('http://localhost:8000/get_nearby_alumni.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, radius })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          const alumni = data.alumni;
+
+          if (alumni.length === 0) {
+            statusEl.textContent = `No nearby alumni found within ${radius} km.`;
+            return;
+          }
+
+          statusEl.textContent = `Found ${alumni.length} nearby alumni:`;
+
+          alumni.forEach(alum => {
+            const card = document.createElement('div');
+            card.className = "alumni-card";
+            card.innerHTML = `
+              <h4>${alum.name}</h4>
+              <small>Email: ${alum.email}</small>
+              <small>Location: ${alum.latitude}, ${alum.longitude}</small>
+              <small>Networks: ${alum.networks.join(', ')}</small>
+            `;
+            resultsDiv.appendChild(card);
+          });
+
+        } else {
+          statusEl.textContent = " " + data.message;
+        }
+      })
+      .catch(err => {
+        statusEl.textContent = " Error: " + err.message;
+      });
+    }
+
+    // Auto fetch on load
+    window.onload = fetchAlumni;
+  </script>
+
+</body>
+</html>

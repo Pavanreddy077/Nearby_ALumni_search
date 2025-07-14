@@ -1,0 +1,52 @@
+Array
+(
+    [0] => Array
+        (
+            [0] =>  CREATE TABLE IF NOT EXISTS users ( id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100) NOT NULL, email VARCHAR(150) NOT NULL UNIQUE, latitude DECIMAL(10, 7), longitude DECIMAL(10, 7), created_at DATETIME DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX idx_location (latitude, longitude) ); 
+            [1] => 0.011929035186768
+            [2] => MysqliDb->rawQuery() >>  file "C:\Users\padam\alumni_search\update_user.php" line #24 
+        )
+
+    [1] => Array
+        (
+            [0] =>  CREATE TABLE IF NOT EXISTS networks ( id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(100) NOT NULL UNIQUE, description TEXT ); 
+            [1] => 0.0015020370483398
+            [2] => MysqliDb->rawQuery() >>  file "C:\Users\padam\alumni_search\update_user.php" line #37 
+        )
+
+    [2] => Array
+        (
+            [0] =>  CREATE TABLE IF NOT EXISTS user_networks ( user_id INT NOT NULL, network_id INT NOT NULL, PRIMARY KEY (user_id, network_id), FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, FOREIGN KEY (network_id) REFERENCES networks(id) ON DELETE CASCADE ); 
+            [1] => 0.0012111663818359
+            [2] => MysqliDb->rawQuery() >>  file "C:\Users\padam\alumni_search\update_user.php" line #45 
+        )
+
+    [3] => Array
+        (
+            [0] => UPDATE users SET `name` = 'JOHN', `email` = 'john123@gmail.com', `latitude` = '17.3801472', `longitude` = '78.47936', `updated_at` = NOW() WHERE  id = '1' 
+            [1] => 0.00034809112548828
+            [2] => MysqliDb->update() >>  file "C:\Users\padam\alumni_search\update_user.php" line #99 
+        )
+
+    [4] => Array
+        (
+            [0] => DELETE FROM user_networks WHERE  user_id = '1' 
+            [1] => 0.00016283988952637
+            [2] => MysqliDb->delete() >>  file "C:\Users\padam\alumni_search\update_user.php" line #120 
+        )
+
+    [5] => Array
+        (
+            [0] => SELECT  id FROM networks WHERE  name = 'CBIT'  LIMIT 1
+            [1] => 0.00061893463134766
+            [2] => MysqliDb->getOne() >>  file "C:\Users\padam\alumni_search\update_user.php" line #130 
+        )
+
+    [6] => Array
+        (
+            [0] => INSERT  INTO networks (`name`)  VALUES ('CBIT')
+            [1] => 0.00057101249694824
+            [2] => MysqliDb->insert() >>  file "C:\Users\padam\alumni_search\update_user.php" line #131 
+        )
+
+)
